@@ -45,7 +45,8 @@ MAX_DISTANCE = float(os.getenv("MAX_DISTANCE", "0.17"))
 # --- Modèle (Ollama) ---
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 # Le nom exact du tag doit être vérifié avec `ollama list` sur le PC.
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
+OLLAMA_MODEL = "qwen3.5:9b"
+#OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3.5:9b")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))  # identique pour tous les modèles
 NUM_CTX = int(os.getenv("NUM_CTX", "4096"))
 REQUEST_TIMEOUT = 300
