@@ -25,7 +25,9 @@ Tu réponds en français, avec des phrases simples et courtes.
 RÈGLES STRICTES :
 1. Tu réponds UNIQUEMENT à partir des EXTRAITS fournis. Tu n'utilises aucune autre connaissance.
 2. Après chaque information, tu cites l'extrait entre crochets, par exemple [S1] ou [S2].
-3. Si les extraits ne contiennent pas la réponse, tu réponds exactement : {ABSENT_TAG}
+3. Si les extraits contiennent une partie de la réponse, donne cette partie avec les citations,
+   puis dis clairement ce qui manque (par exemple : « Les extraits ne précisent pas ... »).
+   Si les extraits ne contiennent rien d'utile pour la question, tu réponds exactement : {ABSENT_TAG}
    (rien d'autre). N'invente jamais. Ne complète jamais avec tes connaissances générales.
 4. Tu ne donnes aucun dosage de médicament, aucun diagnostic certain. Tu peux décrire les signes
    mentionnés dans les extraits et dire qu'ils peuvent évoquer telle maladie.
@@ -83,12 +85,37 @@ def _collection():
 
 
 def retrieve(question: str, k: int | None = None) -> list[Passage]:
+    """Passages les plus proches de la question, avec au plus config.MAX_PER_DOC passages par document.
+
+    Sans cette limite, la thèse Vaudaux (90 passages sur 188) occupe presque tout le top K et les petits
+    documents (WOAH, RECA, CIRAD) n'apparaissent jamais. MAX_PER_DOC = 0 désactive la limite.
+    """
     from embeddings import embed_query
 
-    res = _collection().query(query_embeddings=[embed_query(question)], n_results=k or config.TOP_K,
+    k = k or config.TOP_K
+    max_doc = getattr(config, "MAX_PER_DOC", 0)
+    exclus = getattr(config, "EXCLUDE_PAGES", set())
+    par_doc = getattr(config, "MAX_PER_DOC_BY_ID", {})
+    candidats = max(k * 4, 16) if (max_doc or par_doc or exclus) else k
+    res = _collection().query(query_embeddings=[embed_query(question)], n_results=candidats,
                               include=["documents", "metadatas", "distances"])
-    return [Passage(i + 1, d, m, float(dist)) for i, (d, m, dist)
-            in enumerate(zip(res["documents"][0], res["metadatas"][0], res["distances"][0]))]
+    triplets = list(zip(res["documents"][0], res["metadatas"][0], res["distances"][0]))
+
+    gardes, ecartes, compte = [], [], {}
+    for d, m, dist in triplets:
+        doc = m.get("id") or m.get("source_id") or m.get("titre") or "?"
+        if (str(doc), str(m.get("page", ""))) in exclus:
+            continue
+        limite = par_doc.get(doc, max_doc)
+        if limite and compte.get(doc, 0) >= limite:
+            ecartes.append((d, m, dist))
+            continue
+        compte[doc] = compte.get(doc, 0) + 1
+        gardes.append((d, m, dist))
+        if len(gardes) == k:
+            break
+    gardes += ecartes[: k - len(gardes)]   # complète si le corpus est trop petit pour remplir K
+    return [Passage(i + 1, d, m, float(dist)) for i, (d, m, dist) in enumerate(gardes)]
 
 
 # ---------------------------------------------------------------- prompt -----

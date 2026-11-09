@@ -4,3 +4,8 @@ chroma_db/
 resultats_citations.csv
 .venv/
 __pycache__/
+
+cle_correspondance*.csv
+reponses_brutes*.csv
+Partie_C_notation*.xlsx
+*.bak*

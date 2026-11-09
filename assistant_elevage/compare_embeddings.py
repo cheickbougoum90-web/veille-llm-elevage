@@ -24,6 +24,7 @@ from sentence_transformers import SentenceTransformer
 import config
 
 CLASSEUR = "Partie_C_questions_et_grille.xlsx"
+MAX_PAR_DOC = 2
 MODELES = sys.argv[1:] or [
     "intfloat/multilingual-e5-small",   # modèle actuel
     "intfloat/multilingual-e5-base",
@@ -63,12 +64,27 @@ for nom in MODELES:
     Q = model.encode([pq + q for _, q, _ in qs], normalize_embeddings=True)
     sims = Q @ P.T
     hit_k = hit_8 = 0
+    hit_div = {1: 0, 2: 0, 3: 0}
+    rat_div = {1: [], 2: [], 3: []}
     rangs, ratees = [], []
     for i, (qid, _, att) in enumerate(qs):
         ordre = np.argsort(-sims[i])
         premiers = [ids[j] for j in ordre]
         rang = next((r for r, k in enumerate(premiers, 1) if k in att), None)
         rangs.append(rang if rang else 999)
+        # Variante « diversité » : au plus m passages par document dans le top K
+        for m in (1, 2, 3):
+            compte, divers = {}, []
+            for k in premiers:
+                if compte.get(k, 0) < m:
+                    compte[k] = compte.get(k, 0) + 1
+                    divers.append(k)
+                if len(divers) == config.TOP_K:
+                    break
+            if set(divers) & att:
+                hit_div[m] += 1
+            else:
+                rat_div[m].append(qid)
         hit_k += bool(rang and rang <= config.TOP_K)
         hit_8 += bool(rang and rang <= 8)
         if not (rang and rang <= config.TOP_K):
@@ -78,7 +94,11 @@ for nom in MODELES:
     resume.append((nom, hit_k, hit_8, n, mrr, ratees, time.time() - t0))
     print(f"{nom}\n  bon document dans le top {config.TOP_K} : {hit_k}/{n} ({100 * hit_k / n:.0f} %)"
           f" | top 8 : {hit_8}/{n} | rang inverse moyen : {mrr:.2f} | {time.time() - t0:.0f} s")
-    print(f"  questions ratées : {', '.join(ratees) or 'aucune'}\n")
+    print(f"  questions ratées : {', '.join(ratees) or 'aucune'}")
+    for m in (1, 2, 3):
+        print(f"  diversité, max {m} passage(s) par document : {hit_div[m]}/{n} ({100 * hit_div[m] / n:.0f} %)"
+              f" | ratées : {', '.join(rat_div[m]) or 'aucune'}")
+    print()
 
 print("--- Résumé ---")
 for nom, hk, h8, n, mrr, _, _ in sorted(resume, key=lambda x: -x[1]):

@@ -22,6 +22,22 @@ DROP_BELOW_WORDS = 40  # passages trop courts ignorés
 
 # --- Recherche ---
 TOP_K = int(os.getenv("TOP_K", "4"))
+# Au plus N passages du même document dans les passages donnés au modèle (0 = pas de limite)
+MAX_PER_DOC = int(os.getenv("MAX_PER_DOC", "3"))
+
+# Plafond particulier par document : la thèse Vaudaux (90 passages) est limitée à 1 passage par réponse.
+# Les autres documents suivent MAX_PER_DOC.
+MAX_PER_DOC_BY_ID = {"vaudaux-mali-2008": 1}
+
+
+# Pages sans contenu vétérinaire, écartées de la recherche : elles sortaient en tête pour presque toutes
+# les questions (constat par hubs.py). (identifiant du document, numéro de page)
+EXCLUDE_PAGES = {
+    ("vaudaux-mali-2008", "7"),     # remerciements
+    ("vaudaux-mali-2008", "115"),   # guide de questions d'enquête (annexe)
+}
+
+
 # Distance cosinus (0 = identique). Au-delà de ce seuil, on refuse de répondre
 # SANS appeler le modèle. À calibrer avec eval_citations.py (voir README).
 MAX_DISTANCE = float(os.getenv("MAX_DISTANCE", "0.17"))
