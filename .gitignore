@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Modèles et bases locales (trop lourds pour GitHub)
+*.gguf
+*.safetensors
+*.bin
+chroma_db/
+.chroma/
+
+# Notation en aveugle : la clé et les réponses brutes ne sont partagées qu'à la fin
+reponses/reponses_brutes_NE_PAS_MONTRER.csv
+reponses/cle_modeles.csv
+
+# Documents sources : à ne publier que si la licence l'autorise (garder la fiche dans data/sources.csv)
+data/documents_veterinaires/*.pdf
+data/documents_veterinaires/*.docx
+
+# Système
+.DS_Store
+Thumbs.db
+~$*.xlsx
+
+# Notation en aveugle (sorties de run_eval.py), à n'importer qu'après la notation
+cle_correspondance.csv
+reponses_brutes.csv
+Partie_C_notation.xlsx
+notation_*.xlsx
+scores_par_modele.csv

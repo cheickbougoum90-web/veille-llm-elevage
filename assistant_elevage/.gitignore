@@ -1,0 +1,6 @@
+docs/*.pdf
+docs/*.txt
+chroma_db/
+resultats_citations.csv
+.venv/
+__pycache__/

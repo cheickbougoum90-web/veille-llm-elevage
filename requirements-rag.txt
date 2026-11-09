@@ -1,0 +1,5 @@
+# Pour le rôle B (RAG et interface). Les versions seront figées après les premiers tests.
+requests
+gradio
+chromadb
+sentence-transformers
