@@ -1,9 +1,15 @@
 """Interface Gradio : question -> réponse sourcée -> bouton de lecture audio.
 
 Lancer :  python app.py      puis ouvrir http://127.0.0.1:7860
-Tout reste sur le PC (127.0.0.1 uniquement, aucune donnée envoyée sur internet).
+Interface accessible seulement depuis ce PC (127.0.0.1) ; les questions ne sont pas enregistrées.
 """
 from __future__ import annotations
+
+import os
+
+# Aucune statistique envoyée par Gradio (à définir avant l'import) ; HF_HUB_OFFLINE=1 est à définir
+# dans le terminal après le premier téléchargement du modèle d'embeddings (voir README).
+os.environ.setdefault("GRADIO_ANALYTICS_ENABLED", "False")
 
 import gradio as gr
 
@@ -13,9 +19,11 @@ import tts
 
 BANNER = (
     "### 🐄 Assistant d'élevage (bovins, moutons, chèvres)\n"
-    "⚠️ **Cet assistant est une intelligence artificielle. Il ne remplace pas un vétérinaire.** "
-    "Ses réponses viennent uniquement des documents chargés ; en cas de doute, consultez un vétérinaire.\n\n"
-    "🔒 Fonctionne sans internet : vos questions restent sur cet ordinateur."
+    "⚠️ **Vous parlez à une intelligence artificielle, pas à un vétérinaire.** "
+    "Elle peut se tromper et ne donne ni diagnostic, ni traitement, ni dose. "
+    "Ses réponses viennent uniquement des documents chargés, dont certains sont anciens. "
+    "**En cas d'animal malade ou de doute, consultez un vétérinaire ou un agent de santé animale.**\n\n"
+    "🔒 Les questions sont traitées sur cet ordinateur (modèle local) et ne sont pas enregistrées par l'application."
 )
 
 EXAMPLES = [
