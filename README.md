@@ -6,6 +6,8 @@ Travail du module **Veille technologique** (ESMT, Dr Moustapha DER). Sujet : cho
 
 Un assistant d'aide à l'élevage (bovins et petits ruminants) qui tourne **sans internet** sur un ordinateur portable. L'utilisateur écrit sa question en français. L'assistant répond en texte et à voix haute, en français, à partir de documents vétérinaires fiables (RAG).
 
+**Vidéo de démonstration** : [demo_assistant_elevage.mp4](https://esmtsn-my.sharepoint.com/:v:/g/personal/abdoulaziz_bougoum_etu_esmt_sn/IQA7l4-7tlh5S7VP_brb_QkcATR4Yp71Rrheyt1-VB-0Kmc?e=3nthid)
+
 > **Avertissement** : cet assistant ne remplace pas un vétérinaire. Il fournit une aide d'information, pas un diagnostic.
 
 ## Chaîne de traitement
